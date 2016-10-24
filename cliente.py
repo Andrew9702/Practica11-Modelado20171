@@ -47,7 +47,7 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  		estado = self.cliente.estado_del_juego()
  		self.tableWidget.setColumnCount(estado['tamX']) #Inicia las columnas con el tamaño de las que tiene el server
  		self.tableWidget.setRowCount(estado['tamY']) #Inicia las filas con el tamaño de las que tiene el server
- 		self.way = estado['vivoras']
+ 		self.timer.setInterval(estado['espera'])
  		#Arma una direccion en base a la text edit de la interfaz y al spinbox del puerto
 
     #Crea y aparece a la serpiente que hace spawn en servidor
