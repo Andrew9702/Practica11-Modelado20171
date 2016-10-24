@@ -24,19 +24,31 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  		self.ping.clicked.connect(self.lanzarPing)
  		self.participar.clicked.connect(self.partyHard)
 
- 		#Arma una direccion en base a la text edit de la interfaz y al spinbox del puerto
- 		self.direccion = "http://" + self.url.text() + ":" + str(self.finder())
- 		self.cliente = ServerProxy(self.direccion) 
+
  		self.tableWidget.keyPressEvent = self.keyPressEvent
  		self.timer = QTimer()
  		self.timer.timeout.connect(self.comoEsta)
  		self.timer.start(150)
+ 		self.dire=0
+
+ 	#Lanza un ping para comprobar que la conexion es exitosa
+ 	def lanzarPing(self):
+ 		self.ping.setText("Piging...")
+ 		try:
+ 			self.direccion = "http://" + self.url.text() + ":" + str(self.finder())
+ 			self.cliente = ServerProxy(self.direccion) 
+ 			pong = self.cliente.ping()
+ 			self.ping.setText("¡Pong!")
+ 		except:
+ 			self.ping.setText("No pong :(")
+
 
  	def comoEsta(self):
  		estado = self.cliente.estado_del_juego()
  		self.tableWidget.setColumnCount(estado['tamX']) #Inicia las columnas con el tamaño de las que tiene el server
  		self.tableWidget.setRowCount(estado['tamY']) #Inicia las filas con el tamaño de las que tiene el server
  		self.way = estado['vivoras']
+ 		#Arma una direccion en base a la text edit de la interfaz y al spinbox del puerto
 
     #Crea y aparece a la serpiente que hace spawn en servidor
  	def spawnSnake(self, coordenadas, color):
@@ -73,13 +85,6 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  			puerto = self.puerto.value()
  		return puerto
 
- 	#Lanza un ping para comprobar que la conexion es exitosa
- 	def lanzarPing(self):
- 		self.ping.setText("Piging...")
- 		if self.cliente.ping() == "¡Pong!":
- 			self.ping.setText("¡Pong!")
- 		else:
- 			self.ping.setText("No pong :(")
 
  	#Crea una nueva serpiente y la pinta en el servidor y en el cliente
  	def partyHard(self):
