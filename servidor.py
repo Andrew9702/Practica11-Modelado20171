@@ -172,19 +172,20 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 			if self.matame(bibora):
 				self.termina(bibora)
 
-	#De nuevo unicamente mueve a la serpiente que funciona solo en el servidor
+	#Nope. A movernos todos
 	def keyPressEvent(self,event):
-		if event.key() == QtCore.Qt.Key_Left and self.snake.direccion != 1:
-			self.snake.direccion= 3
-		elif event.key() == QtCore.Qt.Key_Right and self.snake.direccion != 3:
-			self.snake.direccion= 1
-		elif event.key() == QtCore.Qt.Key_Up and self.snake.direccion != 2:
-			self.snake.direccion= 0
-		elif event.key() == QtCore.Qt.Key_Down and self.snake.direccion != 0:
-			self.snake.direccion= 2
+		for vibora in self.misViboras:
+			if event.key() == QtCore.Qt.Key_Left and vibora.direccion != 1:
+				vibora.direccion= 3
+			elif event.key() == QtCore.Qt.Key_Right and vibora.direccion != 3:
+				vibora.direccion= 1
+			elif event.key() == QtCore.Qt.Key_Up and vibora.direccion != 2:
+				vibora.direccion= 0
+			elif event.key() == QtCore.Qt.Key_Down and vibora.direccion != 0:
+				vibora.direccion= 2
 	
 	#Borra la widget, detiene el timer, borra las listas de serpientes y da oportunidad de nuevo juego
-	def termina(self, bibora):
+	def termina(self,bibora):
 		self.timer.stop()
 		self.tableWidget.clear()
 		self.misViboras.clear()
@@ -236,7 +237,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 
 	#Cambia la direccion de la serpiente que esta en el cliente (OJO LA MUEVE EN EL SERVIDOR NO EN EL CLIENTE, ESTE SOLO LA VE EN SU WIDGET)
 	def camba_direccion(self,identificador,direccioname):
-		serpienteEncontrada = dameMiViboraId(identificador)
+		serpienteEncontrada = self.dameMiViboraId(identificador)
 		if serpienteEncontrada != None:
 			serpienteEncontrada.direccion = direccioname
 
