@@ -87,7 +87,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 
 			#Inicia al timer que ejecutara la funcion para que la vibora se mueva
 			self.timer = QTimer()
-			self.timer.timeout.connect(self.mueve)
+			self.timer.timeout.connect(self.condicional)
 			self.timer.start(150)
 
 			self.espera.setValue(150)
@@ -158,22 +158,19 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 		bibora.existeDenuevo()
 		self.aparece(bibora)
 
-	#Mueve a la vibora segun su direccion una cantidad infinita de veces
-	def condicional(self, bibora):
-		if bibora.direccion == 0:
-			self.caminaArriba(bibora)
-		elif bibora.direccion == 1:
-			self.caminaDerecha(bibora)
-		elif bibora.direccion == 2:
-			self.caminaAbajo(bibora)
-		elif bibora.direccion == 3:  
-			self.caminaIzquierda(bibora)
-		if self.matame(bibora):
-			self.termina(bibora)
-
-	#Unicamente para que la serpiente del servidor se mueva
-	def mueve(self):
-		self.condicional(self.snake)
+	#LAS MUEVE A TODAS XDDD (Sí incluida la del servidor)
+	def condicional(self):
+		for bibora in self.misViboras:
+			if bibora.direccion == 0:
+				self.caminaArriba(bibora)
+			elif bibora.direccion == 1:
+				self.caminaDerecha(bibora)
+			elif bibora.direccion == 2:
+				self.caminaAbajo(bibora)
+			elif bibora.direccion == 3:  
+				self.caminaIzquierda(bibora)
+			if self.matame(bibora):
+				self.termina(bibora)
 
 	#De nuevo unicamente mueve a la serpiente que funciona solo en el servidor
 	def keyPressEvent(self,event):
@@ -237,7 +234,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 		self.aparece(vivora)
 		return {"id": vivora.id, "color": {"r": vivora.color[0], "g": vivora.color[1], "b": vivora.color[2]}}
 
-	#Cambia la direccion de la serpiente que esta en el cliente
+	#Cambia la direccion de la serpiente que esta en el cliente (OJO LA MUEVE EN EL SERVIDOR NO EN EL CLIENTE, ESTE SOLO LA VE EN SU WIDGET)
 	def camba_direccion(self,identificador,direccioname):
 		serpienteEncontrada = dameMiViboraId(identificador)
 		if serpienteEncontrada != None:
@@ -262,7 +259,6 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 
 	#Busca al objeto vibora poseedora de esa id, regresa las propiedades de dicha (Para poderla pintar en el servidor y cliente)
 	def dameMiViboraInfo(self, identify):
-		esEsta = None
 		for i in range(len(self.misViborasInfo)):
 			if self.misViborasInfo[i]['id'] == identify:
 				esEsta = self.misViborasInfo[i]
@@ -270,7 +266,6 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 
 	#Regresa al objeto vibora poseedora de esa identificacion
 	def dameMiViboraId(self,credencial):
-		laVibora = None
 		for i in range(len(self.misViboras)):
 			if str(self.misViboras[i].id) == credencial:
 				laVibora = self.misViboras[i]
