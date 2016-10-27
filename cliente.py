@@ -23,12 +23,11 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  		#Botones funcionales
  		self.ping.clicked.connect(self.lanzarPing)
  		self.participar.clicked.connect(self.partyHard)
-
-
  		self.tableWidget.keyPressEvent = self.keyPressEvent
+
+ 		self.guardaCoords=None
  		self.timer = QTimer()
  		self.timer.timeout.connect(self.comoEsta)
- 		self.timer.start(150)
  		self.dire=0
 
  	#Lanza un ping para comprobar que la conexion es exitosa
@@ -38,17 +37,31 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  			self.direccion = "http://" + self.url.text() + ":" + str(self.finder())
  			self.cliente = ServerProxy(self.direccion) 
  			pong = self.cliente.ping()
+ 			self.primeraves= True
  			self.ping.setText("¡Pong!")
+ 			self.timer.start(self.cliente.estado_del_juego()["espera"])
  		except:
- 			self.ping.setText("No pong :(")
+ 			self.ping.setText("No pong :(\nInténtalo de nuevo")
 
-
+ 	#Actualiza la widget a como esta la del juego
  	def comoEsta(self):
  		estado = self.cliente.estado_del_juego()
- 		self.tableWidget.setColumnCount(estado['tamX']) #Inicia las columnas con el tamaño de las que tiene el server
- 		self.tableWidget.setRowCount(estado['tamY']) #Inicia las filas con el tamaño de las que tiene el server
- 		self.timer.setInterval(estado['espera'])
- 		#Arma una direccion en base a la text edit de la interfaz y al spinbox del puerto
+ 		self.timer.setInterval(estado["espera"])
+ 		self.tableWidget.setColumnCount(estado['tamY']) #Inicia las columnas con el tamaño de las que tiene el server
+ 		self.tableWidget.setRowCount(estado['tamX']) #Inicia las filas con el tamaño de las que tiene el server
+ 		listaVibs = estado['vivoras']
+ 		self.borraTodo(self.guardaCoords)
+ 		for vibora in listaVibs:
+ 			self.spawnSnake(vibora['camino'],vibora['color'])
+ 		self.guardaCoords = estado['vivoras']
+ 			
+ 	#Borra todas las serpiente del tableWidget
+ 	def borraTodo(self,viboras):
+ 		if viboras == None:
+ 			return
+ 		else:
+ 			for vibora in viboras:
+ 				self.erase(vibora['camino'])
 
     #Crea y aparece a la serpiente que hace spawn en servidor
  	def spawnSnake(self, coordenadas, color):
@@ -81,8 +94,10 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  		puerto = 0
  		if self.puerto.value() == 0:
  			puerto = 8000
+ 			self.puerto.setValue(puerto)
  		else:
  			puerto = self.puerto.value()
+ 			self.puerto.setValue(puerto)
  		return puerto
 
 
@@ -91,22 +106,22 @@ class Cliente(QtGui.QMainWindow, clienteGui):
  		snaker = self.cliente.yo_juego()
  		self.id.setText(str(snaker['id']))
  		self.color.setText(str(snaker['color']))
- 		self.tomaTuVibora = self.cliente.dameMiViboraInfo(snaker['id'])
- 		self.spawnSnake(self.tomaTuVibora['camino'],self.tomaTuVibora['color'])
-
- 		#Solo un cliente a la vez xD
  		self.participar.hide()
 
  	#Controles para la serpiente del servidor
  	def keyPressEvent(self,event):
  		if event.key() == QtCore.Qt.Key_Left and self.dire != 1:
  			self.cliente.camba_direccion(self.id.text(), 3)
+ 			self.dire = 3
  		elif event.key() == QtCore.Qt.Key_Right and self.dire != 3:
  			self.cliente.camba_direccion(self.id.text(), 1)
+ 			self.dire = 1
  		elif event.key() == QtCore.Qt.Key_Up and self.dire != 2:
  			self.cliente.camba_direccion(self.id.text(), 0)
+ 			self.dire = 0
  		elif event.key() == QtCore.Qt.Key_Down and self.dire != 0:
  			self.cliente.camba_direccion(self.id.text(), 2)
+ 			self.dire= 2
 
 #Inicia la aplicacion.
 def main():
