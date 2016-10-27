@@ -72,7 +72,11 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QSpinBox" name="puerto"/>
+        <widget class="QSpinBox" name="puerto">
+         <property name="maximum">
+          <number>800000000</number>
+         </property>
+        </widget>
        </item>
        <item row="2" column="0">
         <widget class="QPushButton" name="ping">
