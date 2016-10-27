@@ -80,9 +80,8 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 	#Inicia el juego
 	def playGameButton(self):
 		if self.iniciajuego.text() == "Inicia Juego":
-			self.snake = self.snakeMaker()
 			self.iniciajuego.setText("Pausar el juego")
-
+			self.snakeMaker()
 			self.pushButton_2.show()
 
 			#Inicia al timer que ejecutara la funcion para que la vibora se mueva
@@ -158,7 +157,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 		bibora.existeDenuevo()
 		self.aparece(bibora)
 
-	#LAS MUEVE A TODAS XDDD (Sí incluida la del servidor)
+	#Si una vibora cambia de direccion en el metodo camba, este metodo la mueve
 	def condicional(self):
 		for bibora in self.misViboras:
 			if bibora.direccion == 0:
@@ -172,7 +171,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 			if self.matame(bibora):
 				self.termina(bibora)
 
-	#Nope. A movernos todos
+	#Mueve a cada serpiente del servidor
 	def keyPressEvent(self,event):
 		for vibora in self.misViboras:
 			if event.key() == QtCore.Qt.Key_Left and vibora.direccion != 1:
@@ -206,7 +205,6 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 		self.servidor.register_function(self.yo_juego)
 		self.servidor.register_function(self.estado_del_juego)
 		self.servidor.register_function(self.camba_direccion)
-		self.servidor.register_function(self.dameMiViboraInfo)
 		self.servidor.register_function(self.dameMiViboraId)
 
 		#Hace esperar al servidor solo un tiempo limitado
@@ -228,7 +226,7 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 	#Metodo que regresa un pong por cada ping
 	def ping(self):
 		return "¡Pong!"
-
+	
 	#metodo que devuelve las propiedades de la vibora
 	def yo_juego(self):
 		vivora = self.snakeMaker()
@@ -243,27 +241,18 @@ class Servidor(QtGui.QMainWindow, servidorUi):
 
 	#Regresa como es que se ve el juego, en la llamada
 	def estado_del_juego(self):
-		return {"espera": self.espera.value(), "tamX": self.tableWidget.columnCount(), "tamY": self.tableWidget.rowCount(), "vivoras":self.misViborasInfo}
-
+		return {"espera": self.espera.value(), "tamX": self.tableWidget.rowCount(), "tamY": self.tableWidget.columnCount(), "vivoras":self.misViborasInfo}
 
 	#Creamos el objeto vivora y le damos atributos aleatorios
 	def snakeMaker(self):
 		identificacion = self.identificacionUnica()
 		color = self.coloresRandom()
 		coordenadas = self.coordenadasRandom()
-		direccion = random.randint(0,3)
-		vivora = Vivora(identificacion,color,coordenadas,direccion)
+		vivora = Vivora(identificacion,color,coordenadas,0)
 		self.misViboras.append(vivora)
-		self.misViborasInfo.append({"id": id, "camino": coordenadas, "color": color})
+		self.misViborasInfo.append({"id": identificacion, "camino": coordenadas, "color": color})
 		self.aparece(vivora)
 		return vivora
-
-	#Busca al objeto vibora poseedora de esa id, regresa las propiedades de dicha (Para poderla pintar en el servidor y cliente)
-	def dameMiViboraInfo(self, identify):
-		for i in range(len(self.misViborasInfo)):
-			if self.misViborasInfo[i]['id'] == identify:
-				esEsta = self.misViborasInfo[i]
-		return esEsta
 
 	#Regresa al objeto vibora poseedora de esa identificacion
 	def dameMiViboraId(self,credencial):
